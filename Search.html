@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  body{font-family:'Sarabun',sans-serif;font-size:13px;padding:12px;margin:0;color:#222}
+  h3{color:#0C447C;margin:0 0 12px;font-size:15px}
+  label{display:block;font-size:12px;color:#555;margin-bottom:3px}
+  input,select{width:100%;box-sizing:border-box;padding:7px 9px;
+    border:1px solid #ddd;border-radius:4px;font-size:13px;
+    font-family:'Sarabun',sans-serif;margin-bottom:8px}
+  .btn{width:100%;padding:9px;background:#0C447C;color:#fff;border:none;
+       border-radius:4px;font-size:13px;font-family:'Sarabun',sans-serif;
+       cursor:pointer;margin-bottom:10px}
+  .btn:hover{background:#083260}
+  .card{background:#f8f8f8;border:1px solid #e0e0e0;border-radius:6px;
+        padding:10px 12px;margin-bottom:8px}
+  .card-name{font-size:14px;font-weight:600;color:#222;margin-bottom:4px}
+  .badge{display:inline-block;padding:2px 7px;border-radius:10px;
+         font-size:11px;font-weight:600;margin-right:4px}
+  .b-tb{background:#E1F5EE;color:#085041}
+  .b-ex{background:#E6F1FB;color:#0C447C}
+  .b-dv{background:#FAEEDA;color:#633806}
+  .meta{font-size:12px;color:#666;margin-top:4px}
+  .hist-row{font-size:12px;padding:4px 0;border-bottom:1px solid #eee;
+            display:flex;gap:8px}
+  .hist-row:last-child{border-bottom:none}
+  .yr{font-weight:600;color:#333;min-width:36px}
+  .empty{color:#aaa;font-size:13px;text-align:center;padding:20px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<h3>🔍 ค้นหาเกษตรกร</h3>
+
+<div>
+  <label>เลขบัตรประชาชน หรือ ชื่อ-นามสกุล</label>
+  <input type="text" id="q" placeholder="พิมพ์ค้นหา...">
+</div>
+<div>
+  <label>กรองตามจังหวัด</label>
+  <select id="prov">
+    <option value="">ทุกจังหวัด</option>
+    <option>กำแพงเพชร</option><option>เชียงใหม่</option><option>พิษณุโลก</option>
+    <option>สุโขทัย</option><option>นครราชสีมา</option><option>ขอนแก่น</option>
+  </select>
+</div>
+<div>
+  <label>กรองตามสถานะ SF</label>
+  <select id="status">
+    <option value="">ทุกสถานะ</option>
+    <option>ต้นแบบ</option><option>Existing</option><option>Developing</option>
+  </select>
+</div>
+<button class="btn" onclick="search()">🔍 ค้นหา</button>
+<div id="out"></div>
+
+<script>
+function search(){
+  const q = document.getElementById('q').value.trim();
+  const p = document.getElementById('prov').value;
+  const s = document.getElementById('status').value;
+  document.getElementById('out').innerHTML =
+    '<div class="empty">⏳ กำลังค้นหา...</div>';
+  google.script.run
+    .withSuccessHandler(render)
+    .searchFarmer(q, p, s);
+}
+
+function badge(status){
+  const cls = status==='ต้นแบบ'?'b-tb':status==='Existing'?'b-ex':'b-dv';
+  return '<span class="badge '+cls+'">'+status+'</span>';
+}
+
+function render(results){
+  const el = document.getElementById('out');
+  if(!results.length){
+    el.innerHTML='<div class="empty">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</div>';
+    return;
+  }
+  el.innerHTML = '<div style="font-size:12px;color:#666;margin-bottom:8px">พบ '
+    + results.length + ' ราย</div>'
+    + results.map(r=>`
+    <div class="card">
+      <div class="card-name">${r.title||''}${r.fname} ${r.lname}
+        ${badge(r.status||'—')}
+      </div>
+      <div class="meta">
+        🪪 ${r.id} &nbsp;|&nbsp; 📍 ${r.province||'—'}
+        &nbsp;|&nbsp; 📅 เข้าร่วม ${r.years} ปี
+      </div>
+      ${r.history.length ? `
+      <div style="margin-top:8px;font-size:11px;font-weight:600;color:#888;
+                  text-transform:uppercase;letter-spacing:.04em">ประวัติการพัฒนา</div>
+      ${r.history.map(h=>`
+        <div class="hist-row">
+          <span class="yr">${h.year}</span>
+          <span>${badge(h.result||'—')}</span>
+        </div>`).join('')}` : ''}
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
