@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  body{font-family:'Sarabun',sans-serif;font-size:13px;padding:12px;margin:0;color:#222}
+  h3{color:#0F6E56;margin:0 0 12px;font-size:15px}
+  .sec{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;
+       letter-spacing:.05em;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #eee}
+  label{display:block;font-size:12px;color:#555;margin-bottom:3px}
+  input,select{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #ddd;
+               border-radius:4px;font-size:13px;font-family:'Sarabun',sans-serif}
+  input:focus,select:focus{outline:none;border-color:#0F6E56;box-shadow:0 0 0 2px rgba(15,110,86,.1)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+  .f1{margin-bottom:8px}
+  .req{color:#c0392b}
+  .btn{width:100%;padding:10px;background:#0F6E56;color:#fff;border:none;border-radius:4px;
+       font-size:14px;font-family:'Sarabun',sans-serif;cursor:pointer;margin-top:10px}
+  .btn:hover{background:#085041}
+  .msg{padding:9px 12px;border-radius:4px;margin-top:10px;font-size:13px;border-left:3px solid}
+  .ok{background:#E1F5EE;border-color:#0F6E56;color:#085041}
+  .err{background:#FCEBEB;border-color:#c0392b;color:#7b0000}
+  .warn{background:#FAEEDA;border-color:#854F0B;color:#412402}
+  .dup-ok{color:#0F6E56;font-size:12px;margin-top:3px}
+  .dup-err{color:#c0392b;font-size:12px;margin-top:3px}
+  input[readonly]{background:#f5f5f5;color:#888}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<h3>👤 ลงทะเบียนเกษตรกรใหม่</h3>
+
+<div class="f1">
+  <label>เลขประจำตัวประชาชน 13 หลัก <span class="req">*</span></label>
+  <input type="text" id="id" maxlength="13" placeholder="กรอกตัวเลข 13 หลักเท่านั้น"
+    oninput="this.value=this.value.replace(/\D/g,'');checkDup()">
+  <div id="dup-msg"></div>
+</div>
+
+<div class="sec">ข้อมูลส่วนตัว</div>
+<div class="row3">
+  <div><label>คำนำหน้า <span class="req">*</span></label>
+    <select id="title">
+      <option value="">--</option>
+      <option>นาย</option><option>นาง</option><option>นางสาว</option>
+    </select></div>
+  <div><label>ชื่อ <span class="req">*</span></label>
+    <input type="text" id="fname" placeholder="ชื่อ"></div>
+  <div><label>นามสกุล <span class="req">*</span></label>
+    <input type="text" id="lname" placeholder="นามสกุล"></div>
+</div>
+<div class="row3">
+  <div><label>วันเกิด</label><input type="text" id="bday" placeholder="เช่น 13"></div>
+  <div><label>เดือนเกิด</label>
+    <select id="bmon">
+      <option value="">--</option>
+      <option>มกราคม</option><option>กุมภาพันธ์</option><option>มีนาคม</option>
+      <option>เมษายน</option><option>พฤษภาคม</option><option>มิถุนายน</option>
+      <option>กรกฎาคม</option><option>สิงหาคม</option><option>กันยายน</option>
+      <option>ตุลาคม</option><option>พฤศจิกายน</option><option>ธันวาคม</option>
+    </select></div>
+  <div><label>ปีเกิด พ.ศ.</label>
+    <input type="text" id="byr" maxlength="4" placeholder="เช่น 2505"></div>
+</div>
+<div class="row3">
+  <div><label>ระดับการศึกษา <span class="req">*</span></label>
+    <select id="edu">
+      <option value="">--</option>
+      <option>ไม่ได้รับการศึกษา</option>
+      <option>ประถมศึกษา</option>
+      <option>มัธยมศึกษาตอนต้น หรือเทียบเท่า</option>
+      <option>มัธยมศึกษาตอนปลาย หรือเทียบเท่า (ปวช.)</option>
+      <option>อนุปริญญา หรือเทียบเท่า (ปวส.)</option>
+      <option>ปริญญาตรี</option>
+      <option>สูงกว่าปริญญาตรี</option>
+    </select></div>
+  <div><label>วุฒิการศึกษา</label>
+    <input type="text" id="degree" placeholder="เช่น ป.6, ม.6, ปวส."></div>
+  <div><label>สาขา</label>
+    <input type="text" id="major" placeholder="เช่น เกษตรกรรม"></div>
+</div>
+
+<div class="sec">ที่อยู่ตามบัตรประชาชน</div>
+<div class="row2">
+  <div><label>บ้านเลขที่ <span class="req">*</span></label>
+    <input type="text" id="hno" placeholder="เช่น 98"></div>
+  <div><label>หมู่ที่ <span class="req">*</span></label>
+    <input type="text" id="moo" placeholder="เช่น 19"></div>
+</div>
+<div class="row3">
+  <div><label>ตำบล <span class="req">*</span></label>
+    <input type="text" id="sub" placeholder="ตำบล"></div>
+  <div><label>อำเภอ <span class="req">*</span></label>
+    <input type="text" id="dis" placeholder="อำเภอ"></div>
+  <div><label>จังหวัด <span class="req">*</span></label>
+    <select id="prov">
+      <option value="">-- เลือกจังหวัด --</option>
+      <optgroup label="ภาคเหนือ">
+        <option>กำแพงเพชร</option><option>เชียงราย</option><option>เชียงใหม่</option>
+        <option>ตาก</option><option>นครสวรรค์</option><option>น่าน</option>
+        <option>พะเยา</option><option>พิจิตร</option><option>พิษณุโลก</option>
+        <option>เพชรบูรณ์</option><option>แพร่</option><option>แม่ฮ่องสอน</option>
+        <option>ลำปาง</option><option>ลำพูน</option><option>สุโขทัย</option>
+        <option>อุตรดิตถ์</option><option>อุทัยธานี</option>
+      </optgroup>
+      <optgroup label="ภาคตะวันออกเฉียงเหนือ">
+        <option>กาฬสินธุ์</option><option>ขอนแก่น</option><option>ชัยภูมิ</option>
+        <option>นครพนม</option><option>นครราชสีมา</option><option>บึงกาฬ</option>
+        <option>บุรีรัมย์</option><option>มหาสารคาม</option><option>มุกดาหาร</option>
+        <option>ยโสธร</option><option>ร้อยเอ็ด</option><option>เลย</option>
+        <option>ศรีสะเกษ</option><option>สกลนคร</option><option>สุรินทร์</option>
+        <option>หนองคาย</option><option>หนองบัวลำภู</option><option>อำนาจเจริญ</option>
+        <option>อุดรธานี</option><option>อุบลราชธานี</option>
+      </optgroup>
+      <optgroup label="ภาคกลางและตะวันออก">
+        <option>กาญจนบุรี</option><option>จันทบุรี</option><option>ฉะเชิงเทรา</option>
+        <option>ชลบุรี</option><option>ชัยนาท</option><option>ตราด</option>
+        <option>นครนายก</option><option>นครปฐม</option><option>ปทุมธานี</option>
+        <option>ประจวบคีรีขันธ์</option><option>ปราจีนบุรี</option>
+        <option>พระนครศรีอยุธยา</option><option>เพชรบุรี</option><option>ระยอง</option>
+        <option>ราชบุรี</option><option>ลพบุรี</option><option>สระแก้ว</option>
+        <option>สระบุรี</option><option>สิงห์บุรี</option><option>สุพรรณบุรี</option>
+        <option>อ่างทอง</option>
+      </optgroup>
+      <optgroup label="ภาคใต้">
+        <option>กระบี่</option><option>ชุมพร</option><option>ตรัง</option>
+        <option>นครศรีธรรมราช</option><option>นราธิวาส</option><option>ปัตตานี</option>
+        <option>พังงา</option><option>พัทลุง</option><option>ภูเก็ต</option>
+        <option>ยะลา</option><option>ระนอง</option><option>สงขลา</option>
+        <option>สตูล</option><option>สุราษฎร์ธานี</option>
+      </optgroup>
+    </select></div>
+</div>
+
+<div class="sec">ข้อมูลครัวเรือนและแปลงที่ดิน</div>
+<div class="row2">
+  <div><label>จำนวนสมาชิกครัวเรือน (ราย) <span class="req">*</span></label>
+    <input type="number" id="mem" min="1" placeholder="เช่น 4"></div>
+  <div><label>จำนวนแรงงานในภาคเกษตร (ราย) <span class="req">*</span></label>
+    <input type="number" id="lab" min="0" placeholder="เช่น 3"></div>
+</div>
+<div class="f1">
+  <label>ท่านเป็นเจ้าของแปลง <span class="req">*</span></label>
+  <select id="own" onchange="toggleOwner()">
+    <option value="">--</option>
+    <option value="ใช่">ใช่</option>
+    <option value="ไม่ใช่">ไม่ใช่</option>
+  </select>
+</div>
+<div id="owner-block" style="display:none">
+  <div class="row3">
+    <div><label>ความสัมพันธ์กับเจ้าของแปลง <span class="req">*</span></label>
+      <select id="ownerRel">
+        <option value="">--</option>
+        <option>คู่สมรส</option>
+        <option>บิดา มารดา</option>
+        <option>บุตร</option>
+      </select></div>
+    <div><label>ชื่อ-นามสกุลเจ้าของแปลง <span class="req">*</span></label>
+      <input type="text" id="ownerName" placeholder="ชื่อ-นามสกุล"></div>
+    <div><label>เลขบัตรเจ้าของแปลง <span class="req">*</span></label>
+      <input type="text" id="ownerID" maxlength="13"
+        oninput="this.value=this.value.replace(/\D/g,'')"
+        placeholder="13 หลัก"></div>
+  </div>
+</div>
+
+<div class="sec">การขึ้นทะเบียนและสมาชิกกลุ่ม</div>
+<div class="row2">
+  <div><label>ขึ้นทะเบียนเกษตรกร (สนง.เกษตรอำเภอ)</label>
+    <select id="regAgri">
+      <option value="">--</option><option>มี</option><option>ไม่มี</option>
+    </select></div>
+  <div><label>ขึ้นทะเบียน (การยางแห่งประเทศไทย)</label>
+    <select id="regRubber">
+      <option value="">--</option><option>มี</option><option>ไม่มี</option>
+    </select></div>
+</div>
+<div class="row3">
+  <div><label>สมาชิกสหกรณ์</label>
+    <input type="text" id="coop" placeholder="ชื่อสหกรณ์"></div>
+  <div><label>สมาชิกแปลงใหญ่</label>
+    <input type="text" id="bigfarm" placeholder="ชื่อแปลงใหญ่"></div>
+  <div><label>วิสาหกิจชุมชน</label>
+    <input type="text" id="smce" placeholder="ชื่อวิสาหกิจ"></div>
+</div>
+
+<button class="btn" onclick="submit()">💾 บันทึกเกษตรกรใหม่</button>
+<div id="result"></div>
+
+<script>
+function v(id){ return document.getElementById(id).value.trim(); }
+
+function checkDup(){
+  const id = v('id'), el = document.getElementById('dup-msg');
+  if(id.length !== 13){ el.innerHTML=''; return; }
+  google.script.run
+    .withSuccessHandler(r=>{
+      el.innerHTML = r.duplicate
+        ? '<div class="dup-err">⚠ มีในระบบแล้ว: '+r.name+' — ให้ไปกรอกฟอร์มบันทึกประวัติแทน</div>'
+        : '<div class="dup-ok">✓ ไม่พบในระบบ สามารถลงทะเบียนได้</div>';
+    }).checkDuplicate(id);
+}
+
+function toggleOwner(){
+  document.getElementById('owner-block').style.display =
+    v('own') === 'ไม่ใช่' ? 'block' : 'none';
+}
+
+function submit(){
+  // บังคับกรอก
+  if(v('id').length !== 13){ show('err','กรุณากรอกเลขประจำตัวประชาชน 13 หลัก'); return; }
+  if(!v('title')||!v('fname')||!v('lname')){
+    show('err','กรุณากรอก คำนำหน้า ชื่อ และนามสกุล'); return; }
+  if(!v('edu')){ show('err','กรุณาเลือกระดับการศึกษา'); return; }
+  if(!v('hno')||!v('moo')||!v('sub')||!v('dis')||!v('prov')){
+    show('err','กรุณากรอกที่อยู่ตามบัตรประชาชนให้ครบ'); return; }
+  if(!v('mem')||!v('lab')){ show('err','กรุณากรอกจำนวนสมาชิกและแรงงาน'); return; }
+  if(!v('own')){ show('err','กรุณาระบุว่าเป็นเจ้าของแปลงหรือไม่'); return; }
+  if(v('own')==='ไม่ใช่'){
+    if(!v('ownerRel')||!v('ownerName')||!v('ownerID'))
+    { show('err','กรุณากรอกข้อมูลเจ้าของแปลงให้ครบ'); return; }
+  }
+
+  const bday = v('bday') && v('bmon') && v('byr')
+    ? v('bday')+'-'+v('bmon')+'-'+v('byr') : '';
+
+  const form = {
+    id:v('id'), title:v('title'), fname:v('fname'), lname:v('lname'), bday,
+    hno:v('hno'), moo:v('moo'), sub:v('sub'), dis:v('dis'), prov:v('prov'),
+    mem:v('mem'), lab:v('lab'), own:v('own'),
+    ownerRel: v('own')==='ไม่ใช่' ? v('ownerRel') : '',
+    ownerName: v('own')==='ไม่ใช่' ? v('ownerName') : '',
+    ownerID: v('own')==='ไม่ใช่' ? v('ownerID') : '',
+    edu:v('edu'), degree:v('degree'), major:v('major'),
+    regAgri:v('regAgri'), regRubber:v('regRubber'),
+    coop:v('coop'), bigfarm:v('bigfarm'), smce:v('smce')
+  };
+
+  show('warn','⏳ กำลังบันทึก...');
+  google.script.run
+    .withSuccessHandler(r => show(r.ok?'ok':'err', r.msg))
+    .saveMaster(form);
+}
+
+function show(type, msg){
+  document.getElementById('result').innerHTML =
+    '<div class="msg '+type+'">'+msg+'</div>';
+}
+</script>
+</body>
+</html>
