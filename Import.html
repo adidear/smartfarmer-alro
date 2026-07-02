@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<style>
+  body{font-family:'Sarabun',sans-serif;font-size:13px;padding:14px;margin:0;color:#222}
+  h3{color:#0F6E56;margin:0 0 12px;font-size:15px}
+  label{display:block;font-size:12px;color:#555;margin-bottom:4px}
+  input,select{width:100%;padding:7px 9px;border:1px solid #ddd;border-radius:4px;
+    font-size:13px;font-family:'Sarabun',sans-serif;margin-bottom:10px}
+  .btn{width:100%;padding:10px;background:#0F6E56;color:#fff;border:none;
+    border-radius:4px;font-size:14px;font-family:'Sarabun',sans-serif;cursor:pointer}
+  .btn:hover{background:#085041}
+  .btn:disabled{background:#ccc;cursor:not-allowed}
+  .msg{padding:9px 12px;border-radius:4px;margin-top:10px;font-size:13px;border-left:3px solid}
+  .ok{background:#E1F5EE;border-color:#0F6E56;color:#085041}
+  .err{background:#FCEBEB;border-color:#c0392b;color:#7b0000}
+  .warn{background:#FAEEDA;border-color:#854F0B;color:#412402}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .stat{background:#f8f8f8;border-radius:6px;padding:8px 10px;text-align:center}
+  .stat-val{font-size:18px;font-weight:700;color:#0F6E56}
+  .stat-lbl{font-size:11px;color:#888}
+  .hint{font-size:11px;color:#888;margin-top:-6px;margin-bottom:8px}
+  .progress{height:5px;background:#E0E0E0;border-radius:3px;margin-top:8px;display:none}
+  .progress-fill{height:100%;background:#0F6E56;border-radius:3px;width:0;transition:width .3s}
+  .step{background:#E6F1FB;border-radius:6px;padding:10px 12px;font-size:12px;
+    color:#0C447C;margin-bottom:12px}
+  .step ol{margin-left:14px;margin-top:4px}
+  .step li{margin-bottom:3px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<h3>📥 นำเข้าข้อมูลจากไฟล์ใน Drive</h3>
+
+<div class="step">
+  <strong>ขั้นตอนก่อนนำเข้า:</strong>
+  <ol>
+    <li>อัปโหลดไฟล์ .xlsx หรือ .csv เข้า <strong>Google Drive</strong> ของคุณ</li>
+    <li>ใส่ชื่อไฟล์ <strong>ตรงตามที่อยู่ใน Drive</strong> (รวมนามสกุล)</li>
+    <li>เลือกปีงบประมาณ แล้วกดนำเข้า</li>
+  </ol>
+</div>
+
+<label>ชื่อไฟล์ใน Google Drive</label>
+<input type="text" id="filename" placeholder="เช่น รวมข้อมูล_SF68.xlsx">
+<div class="hint">ต้องตรงกับชื่อไฟล์ใน Drive ทุกตัวอักษร รวมนามสกุล .xlsx หรือ .csv</div>
+
+<label>ปีงบประมาณในไฟล์นี้</label>
+<select id="year">
+  <option>2568</option><option>2569</option><option>2570</option>
+  <option>2567</option><option>2566</option><option>2565</option>
+</select>
+
+<button class="btn" id="importBtn" onclick="doImport()">
+  📥 นำเข้าข้อมูลเข้า Google Sheets
+</button>
+<div class="progress" id="progress"><div class="progress-fill" id="pFill"></div></div>
+<div id="result"></div>
+
+<script>
+function doImport() {
+  const filename = document.getElementById('filename').value.trim();
+  const year     = document.getElementById('year').value;
+  if (!filename) { show('err','กรุณาใส่ชื่อไฟล์'); return; }
+
+  document.getElementById('importBtn').disabled = true;
+  document.getElementById('progress').style.display = 'block';
+  document.getElementById('pFill').style.width = '60%';
+  show('warn','⏳ กำลังอ่านไฟล์จาก Drive และนำเข้า... อาจใช้เวลา 30-60 วินาที');
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      document.getElementById('pFill').style.width = '100%';
+      document.getElementById('importBtn').disabled = false;
+      if (!r.ok) { show('err', '❌ ' + r.msg); return; }
+      document.getElementById('result').innerHTML = `
+        <div class="msg ok">✓ นำเข้าสำเร็จ! ปี ${year} — ${filename}</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-val">${r.total}</div><div class="stat-lbl">แถวทั้งหมด</div></div>
+          <div class="stat"><div class="stat-val" style="color:#0F6E56">${r.master}</div><div class="stat-lbl">Master ใหม่</div></div>
+          <div class="stat"><div class="stat-val" style="color:#0F6E56">${r.plot}</div><div class="stat-lbl">Plot เพิ่ม</div></div>
+          <div class="stat"><div class="stat-val" style="color:#0F6E56">${r.history}</div><div class="stat-lbl">History ใหม่</div></div>
+          ${r.dupMaster>0?`<div class="stat"><div class="stat-val" style="color:#854F0B">${r.dupMaster}</div><div class="stat-lbl">Master ซ้ำ (ข้าม)</div></div>`:''}
+          ${r.dupHist>0?`<div class="stat"><div class="stat-val" style="color:#854F0B">${r.dupHist}</div><div class="stat-lbl">History ซ้ำ (ข้าม)</div></div>`:''}
+          ${r.skipped>0?`<div class="stat"><div class="stat-val" style="color:#c0392b">${r.skipped}</div><div class="stat-lbl">ข้ามแถว</div></div>`:''}
+        </div>`;
+    })
+    .withFailureHandler(function(e) {
+      document.getElementById('importBtn').disabled = false;
+      show('err', 'เกิดข้อผิดพลาด: ' + e.message);
+    })
+    .convertFromDrive(filename, year);
+}
+
+function show(type,msg){
+  document.getElementById('result').innerHTML='<div class="msg '+type+'">'+msg+'</div>';
+}
+</script>
+</body>
+</html>
