@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Farmer — ส.ป.ก.</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:#F4F6F9;color:#222;font-size:14px}
+nav{background:#0F6E56;padding:0 20px;display:flex;align-items:center;
+    justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;
+    box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.nav-brand{color:#fff;font-size:16px;font-weight:700}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto}
+.nav-tab{padding:8px 14px;color:rgba(255,255,255,.75);border:none;background:none;
+         font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;
+         border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+.nav-tab.active,.nav-tab:hover{color:#fff;border-bottom-color:#9FE1CB}
+.main{max-width:1100px;margin:0 auto;padding:20px 16px}
+.page{display:none}.page.active{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.stat-val{font-size:28px;font-weight:700;line-height:1.1}
+.stat-lbl{font-size:12px;color:#666;margin-top:4px}
+.stat-sub{font-size:11px;margin-top:6px}
+.c-tb{color:#0F6E56}.c-ex{color:#0C447C}.c-dv{color:#854F0B}.c-tot{color:#222}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.chart-title{font-size:13px;font-weight:600;color:#444;margin-bottom:12px}
+.chart-wrap{position:relative;height:220px}
+.tbl-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px}
+.tbl-title{font-size:13px;font-weight:600;color:#444;margin-bottom:12px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F4F6F9;color:#555;font-weight:600;text-align:left;padding:8px 10px;
+   border-bottom:2px solid #E5E7EB;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #F0F0F0;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.b-tb{background:#E1F5EE;color:#085041}
+.b-ex{background:#E6F1FB;color:#0C447C}
+.b-dv{background:#FAEEDA;color:#633806}
+.inc-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px}
+.inc-title{font-size:13px;font-weight:600;color:#444;margin-bottom:12px}
+.inc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.inc-lbl{font-size:12px;color:#555;min-width:60px}
+.inc-bar-wrap{flex:1;background:#F0F0F0;border-radius:4px;height:20px;overflow:hidden;min-width:120px}
+.inc-bar{height:100%;border-radius:4px}
+.bar-b{background:#0C447C}.bar-a{background:#0F6E56}
+.inc-val{font-size:12px;font-weight:600;min-width:80px;text-align:right}
+.inc-diff{font-size:12px;font-weight:700}
+.diff-up{color:#0F6E56}.diff-dn{color:#c0392b}
+.form-wrap{max-width:600px;margin:0 auto}
+.form-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px}
+.form-title{font-size:14px;font-weight:600;color:#0F6E56;margin-bottom:14px;
+            padding-bottom:8px;border-bottom:1px solid #eee}
+.sec{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;
+     letter-spacing:.05em;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid #f0f0f0}
+label{display:block;font-size:12px;color:#555;margin-bottom:3px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid #ddd;
+  border-radius:6px;font-size:13px;font-family:'Sarabun',sans-serif;box-sizing:border-box}
+textarea{height:70px;resize:vertical}
+input:focus,select:focus{outline:none;border-color:#0F6E56;box-shadow:0 0 0 2px rgba(15,110,86,.1)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.f1{margin-bottom:10px}
+.req{color:#c0392b}
+.btn-primary{width:100%;padding:11px;background:#0F6E56;color:#fff;border:none;
+             border-radius:8px;font-size:15px;font-family:'Sarabun',sans-serif;
+             cursor:pointer;font-weight:600;margin-top:4px}
+.btn-primary:hover{background:#085041}
+.btn-primary.hist{background:#085041}.btn-primary.hist:hover{background:#04342C}
+.msg{padding:10px 14px;border-radius:6px;margin-top:12px;font-size:13px;border-left:3px solid}
+.msg-ok{background:#E1F5EE;border-color:#0F6E56;color:#085041}
+.msg-err{background:#FCEBEB;border-color:#c0392b;color:#7b0000}
+.msg-warn{background:#FAEEDA;border-color:#854F0B;color:#412402}
+.found-box{background:#E1F5EE;border:1px solid #9FE1CB;border-radius:6px;
+           padding:8px 12px;margin-top:6px;font-size:12px;color:#085041}
+.dup-ok{color:#0F6E56;font-size:12px;margin-top:4px}
+.dup-err{color:#c0392b;font-size:12px;margin-top:4px}
+.checks{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.checks label{display:flex;align-items:center;gap:5px;font-size:12px;
+              color:#333;font-weight:400;margin:0;width:auto}
+.checks input[type=checkbox]{width:auto}
+input[readonly]{background:#F8F8F8;color:#888}
+.diff-hint{font-size:12px;font-weight:600;margin-top:4px}
+.hint{font-size:11px;color:#854F0B;margin-top:2px}
+.inc-diff-box{background:#f8f8f8;border-radius:4px;padding:8px 12px;
+              margin-bottom:8px;font-size:13px;display:none}
+.search-box{display:flex;gap:10px;margin-bottom:16px}
+.search-box input{flex:1;padding:9px 12px;border:1px solid #ddd;border-radius:8px;
+  font-size:14px;font-family:'Sarabun',sans-serif}
+.search-box button{padding:9px 16px;background:#0F6E56;color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-family:'Sarabun',sans-serif;cursor:pointer}
+.farmer-card{background:#fff;border-radius:10px;padding:14px 16px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.15s}
+.farmer-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.12);transform:translateY(-1px)}
+.farmer-card-name{font-size:14px;font-weight:600;color:#222}
+.farmer-card-meta{font-size:12px;color:#888;margin-top:3px}
+.view-btn{padding:6px 12px;background:#E1F5EE;color:#0F6E56;border:none;
+  border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+  background:#f0f0f0;border:none;border-radius:6px;font-size:13px;
+  font-family:'Sarabun',sans-serif;cursor:pointer;margin-bottom:16px}
+.back-btn:hover{background:#e0e0e0}
+.profile-header{background:#fff;border-radius:10px;padding:20px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;
+  display:flex;align-items:center;gap:16px}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:#0F6E56;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;font-weight:700;flex-shrink:0}
+.profile-name{font-size:18px;font-weight:700;color:#222}
+.profile-meta{font-size:13px;color:#666;margin-top:3px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.info-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.info-title{font-size:13px;font-weight:600;color:#444;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.info-row{display:flex;justify-content:space-between;padding:5px 0;
+  border-bottom:1px solid #f8f8f8;font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-lbl{color:#888;min-width:120px}
+.info-val{color:#222;font-weight:500;text-align:right}
+.hist-card{background:#fff;border-radius:10px;padding:16px 18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
+.hist-year{font-size:15px;font-weight:700;color:#0F6E56;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between}
+.inc-compare{display:flex;gap:12px;margin:10px 0;flex-wrap:wrap}
+.inc-box{flex:1;min-width:100px;background:#f8f8f8;border-radius:6px;padding:10px 12px;text-align:center}
+.inc-box-val{font-size:16px;font-weight:700}
+.inc-box-lbl{font-size:11px;color:#888;margin-top:2px}
+.inc-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;min-width:40px}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{background:#F4F6F9;border-radius:4px;padding:3px 8px;font-size:12px;color:#555}
+.loading{text-align:center;padding:40px;color:#888}
+.spin{display:inline-block;width:24px;height:24px;border:3px solid #eee;
+      border-top-color:#0F6E56;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .row2,.row3{grid-template-columns:1fr}
+  .profile-grid{grid-template-columns:1fr}
+  .inc-compare{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">🌾 Smart Farmer ส.ป.ก.</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+    <button class="nav-tab" onclick="showPage('register',this)">👤 ลงทะเบียน</button>
+    <button class="nav-tab" onclick="showPage('history',this)">📋 บันทึกประวัติ</button>
+    <button class="nav-tab" onclick="showPage('search-page',this)">🔍 ค้นหา</button>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="page-dashboard" class="page active">
+  <div id="dash-loading" class="loading">
+    <div class="spin"></div><br>กำลังโหลดข้อมูล...
+  </div>
+  <div id="dash-content" style="display:none">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val c-tot" id="d-total">—</div><div class="stat-lbl">เกษตรกรทั้งหมด</div></div>
+      <div class="stat-card"><div class="stat-val c-tb" id="d-tb">—</div><div class="stat-lbl">ต้นแบบ</div><div class="stat-sub c-tb" id="d-tb-pct"></div></div>
+      <div class="stat-card"><div class="stat-val c-ex" id="d-ex">—</div><div class="stat-lbl">Existing SF</div><div class="stat-sub c-ex" id="d-ex-pct"></div></div>
+      <div class="stat-card"><div class="stat-val c-dv" id="d-dv">—</div><div class="stat-lbl">Developing SF</div><div class="stat-sub c-dv" id="d-dv-pct"></div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card"><div class="chart-title">จำนวนเกษตรกรแยกสถานะ</div><div class="chart-wrap"><canvas id="chart-status"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">จำนวนเกษตรกรแยกจังหวัด</div><div class="chart-wrap"><canvas id="chart-prov"></canvas></div></div>
+    </div>
+    <div class="inc-card">
+      <div class="inc-title">เปรียบเทียบรายได้เฉลี่ย ก่อน/หลัง เข้าร่วมโครงการ (บาท/ปี)</div>
+      <div id="inc-rows"></div>
+    </div>
+    <div class="tbl-card">
+      <div class="tbl-title">สรุปรายปีงบประมาณ</div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>ปีงบประมาณ</th><th>จำนวน (ราย)</th><th>ต้นแบบ</th><th>Existing</th><th>Developing</th>
+        </tr></thead><tbody id="year-tbody"></tbody></table>
+      </div>
+    </div>
+    <div class="tbl-card">
+      <div class="tbl-title">บันทึกล่าสุด 10 รายการ</div>
+      <div class="tbl-wrap">
+        <table><thead><tr>
+          <th>ชื่อ-นามสกุล</th><th>จังหวัด</th><th>ปี</th><th>ผลประเมิน</th><th>วันที่ลงข้อมูล</th>
+        </tr></thead><tbody id="recent-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ═══ REGISTER ═══ -->
+<div id="page-register" class="page">
+<div class="form-wrap">
+<div class="form-card">
+  <div class="form-title">👤 ลงทะเบียนเกษตรกรใหม่</div>
+
+  <div class="f1">
+    <label>เลขประจำตัวประชาชน 13 หลัก <span class="req">*</span></label>
+    <input type="text" id="r-id" maxlength="13" placeholder="กรอกตัวเลข 13 หลัก"
+      oninput="this.value=this.value.replace(/\D/g,'');rChkDup()">
+    <div id="r-dup"></div>
+  </div>
+
+  <div class="sec">ข้อมูลส่วนตัว</div>
+  <div class="row3">
+    <div><label>คำนำหน้า <span class="req">*</span></label>
+      <select id="r-title"><option value="">--</option>
+        <option>นาย</option><option>นาง</option><option>นางสาว</option>
+      </select></div>
+    <div><label>ชื่อ <span class="req">*</span></label>
+      <input type="text" id="r-fname" placeholder="ชื่อ"></div>
+    <div><label>นามสกุล <span class="req">*</span></label>
+      <input type="text" id="r-lname" placeholder="นามสกุล"></div>
+  </div>
+  <div class="row3">
+  <div><label>วันเกิด <span class="req">*</span></label>
+    <input type="number" id="r-bday" min="1" max="31" placeholder="1-31"
+      oninput="if(this.value>31)this.value=31;if(this.value<1&&this.value!=='')this.value=1;"></div>
+    <div><label>เดือนเกิด</label>
+      <select id="r-bmon"><option value="">--</option>
+        <option>มกราคม</option><option>กุมภาพันธ์</option><option>มีนาคม</option>
+        <option>เมษายน</option><option>พฤษภาคม</option><option>มิถุนายน</option>
+        <option>กรกฎาคม</option><option>สิงหาคม</option><option>กันยายน</option>
+        <option>ตุลาคม</option><option>พฤศจิกายน</option><option>ธันวาคม</option>
+      </select></div>
+    <div><label>ปีเกิด พ.ศ.</label>
+      <input type="text" id="r-byr" maxlength="4" placeholder="เช่น 2505"></div>
+  </div>
+  <div class="row3">
+    <div><label>ระดับการศึกษา <span class="req">*</span></label>
+      <select id="r-edu"><option value="">--</option>
+        <option>ไม่ได้รับการศึกษา</option>
+        <option>ประถมศึกษา</option>
+        <option>มัธยมศึกษาตอนต้น หรือเทียบเท่า</option>
+        <option>มัธยมศึกษาตอนปลาย หรือเทียบเท่า (ปวช.)</option>
+        <option>อนุปริญญา หรือเทียบเท่า (ปวส.)</option>
+        <option>ปริญญาตรี</option>
+        <option>สูงกว่าปริญญาตรี</option>
+      </select></div>
+    <div><label>วุฒิการศึกษา</label>
+      <input type="text" id="r-degree" placeholder="เช่น ป.6, ปวส."></div>
+    <div><label>สาขา</label>
+      <input type="text" id="r-major" placeholder="เช่น เกษตรกรรม"></div>
+  </div>
+
+  <div class="sec">ที่อยู่ตามบัตรประชาชน</div>
+  <div class="row2">
+    <div><label>บ้านเลขที่ <span class="req">*</span></label><input type="text" id="r-hno"></div>
+    <div><label>หมู่ที่ <span class="req">*</span></label><input type="text" id="r-moo"></div>
+  </div>
+  <div class="row3">
+    <div><label>ตำบล <span class="req">*</span></label><input type="text" id="r-sub" placeholder="ตำบล"></div>
+    <div><label>อำเภอ <span class="req">*</span></label><input type="text" id="r-dis" placeholder="อำเภอ"></div>
+    <div><label>จังหวัด <span class="req">*</span></label>
+      <select id="r-prov"><option value="">-- เลือกจังหวัด --</option>
+        <optgroup label="ภาคเหนือ">
+          <option>กำแพงเพชร</option><option>เชียงราย</option><option>เชียงใหม่</option>
+          <option>ตาก</option><option>นครสวรรค์</option><option>น่าน</option>
+          <option>พะเยา</option><option>พิจิตร</option><option>พิษณุโลก</option>
+          <option>เพชรบูรณ์</option><option>แพร่</option><option>แม่ฮ่องสอน</option>
+          <option>ลำปาง</option><option>ลำพูน</option><option>สุโขทัย</option>
+          <option>อุตรดิตถ์</option><option>อุทัยธานี</option>
+        </optgroup>
+        <optgroup label="ภาคตะวันออกเฉียงเหนือ">
+          <option>กาฬสินธุ์</option><option>ขอนแก่น</option><option>ชัยภูมิ</option>
+          <option>นครพนม</option><option>นครราชสีมา</option><option>บึงกาฬ</option>
+          <option>บุรีรัมย์</option><option>มหาสารคาม</option><option>มุกดาหาร</option>
+          <option>ยโสธร</option><option>ร้อยเอ็ด</option><option>เลย</option>
+          <option>ศรีสะเกษ</option><option>สกลนคร</option><option>สุรินทร์</option>
+          <option>หนองคาย</option><option>หนองบัวลำภู</option><option>อำนาจเจริญ</option>
+          <option>อุดรธานี</option><option>อุบลราชธานี</option>
+        </optgroup>
+        <optgroup label="ภาคกลาง">
+          <option>กรุงเทพมหานคร</option><option>กำแพงเพชร</option><option>ชัยนาท</option>
+          <option>นครนายก</option><option>นครปฐม</option><option>นนทบุรี</option>
+          <option>ปทุมธานี</option><option>พระนครศรีอยุธยา</option><option>ลพบุรี</option>
+          <option>สมุทรปราการ</option><option>สมุทรสงคราม</option><option>สมุทรสาคร</option>
+          <option>สระบุรี</option><option>สิงห์บุรี</option><option>สุพรรณบุรี</option>
+          <option>อ่างทอง</option>
+        </optgroup>
+        <optgroup label="ภาคตะวันออก">
+          <option>จันทบุรี</option><option>ฉะเชิงเทรา</option><option>ชลบุรี</option>
+          <option>ตราด</option><option>ปราจีนบุรี</option><option>ระยอง</option>
+          <option>สระแก้ว</option>
+        </optgroup>
+        <optgroup label="ภาคตะวันตก">
+          <option>กาญจนบุรี</option><option>ตาก</option><option>ประจวบคีรีขันธ์</option>
+          <option>เพชรบุรี</option><option>ราชบุรี</option>
+        </optgroup>
+        <optgroup label="ภาคใต้">
+          <option>กระบี่</option><option>ชุมพร</option><option>ตรัง</option>
+          <option>นครศรีธรรมราช</option><option>นราธิวาส</option><option>ปัตตานี</option>
+          <option>พังงา</option><option>พัทลุง</option><option>ภูเก็ต</option>
+          <option>ยะลา</option><option>ระนอง</option><option>สงขลา</option>
+          <option>สตูล</option><option>สุราษฎร์ธานี</option>
+        </optgroup>
+      </select></div>
+  </div>
+
+  <div class="sec">ข้อมูลครัวเรือน</div>
+  <div class="row2">
+    <div><label>จำนวนสมาชิกครัวเรือน (ราย) <span class="req">*</span></label>
+      <input type="number" id="r-mem" min="1"></div>
+    <div><label>จำนวนแรงงานเกษตร (ราย) <span class="req">*</span></label>
+      <input type="number" id="r-lab" min="0"></div>
+  </div>
+  <div class="f1">
+    <label>ท่านเป็นเจ้าของแปลง <span class="req">*</span></label>
+    <select id="r-own" onchange="rToggleOwner()">
+      <option value="">--</option><option>ใช่</option><option value="ไม่ใช่">ไม่ใช่</option>
+    </select>
+  </div>
+  <div id="r-owner-block" style="display:none">
+    <div class="row3">
+      <div><label>ความสัมพันธ์ <span class="req">*</span></label>
+        <select id="r-ownerRel"><option value="">--</option>
+          <option>คู่สมรส</option><option>บิดา มารดา</option><option>บุตร</option>
+        </select></div>
+      <div><label>ชื่อ-นามสกุลเจ้าของ <span class="req">*</span></label>
+        <input type="text" id="r-ownerName"></div>
+      <div><label>เลขบัตรเจ้าของ <span class="req">*</span></label>
+        <input type="text" id="r-ownerID" maxlength="13"
+          oninput="this.value=this.value.replace(/\D/g,'')"></div>
+    </div>
+  </div>
+
+  <div class="sec">การขึ้นทะเบียนและกลุ่ม</div>
+  <div class="row2">
+    <div><label>ขึ้นทะเบียนเกษตรกร (สนง.เกษตรอำเภอ)</label>
+      <select id="r-regAgri"><option value="">--</option><option>มี</option><option>ไม่มี</option></select></div>
+    <div><label>ขึ้นทะเบียนการยาง</label>
+      <select id="r-regRubber"><option value="">--</option><option>มี</option><option>ไม่มี</option></select></div>
+  </div>
+  <div class="row3">
+    <div><label>สมาชิกสหกรณ์</label><input type="text" id="r-coop" placeholder="ชื่อสหกรณ์"></div>
+    <div><label>สมาชิกแปลงใหญ่</label><input type="text" id="r-bigfarm" placeholder="ชื่อแปลงใหญ่"></div>
+    <div><label>วิสาหกิจชุมชน</label><input type="text" id="r-smce" placeholder="ชื่อวิสาหกิจ"></div>
+  </div>
+
+  <button class="btn-primary" onclick="rSubmit()">💾 บันทึกเกษตรกรใหม่</button>
+  <div id="r-result"></div>
+</div>
+</div>
+</div>
+<!-- ═══ HISTORY ═══ -->
+<div id="page-history" class="page">
+<div class="form-wrap">
+<div class="form-card">
+  <div class="form-title">📋 บันทึกประวัติการพัฒนาประจำปี</div>
+
+  <div class="f1">
+    <label>เลขประจำตัวประชาชน 13 หลัก <span class="req">*</span></label>
+    <input type="text" id="h-id" maxlength="13" placeholder="กรอกตัวเลข 13 หลัก"
+      oninput="this.value=this.value.replace(/\D/g,'');hLookup()">
+    <div id="h-lookup"></div>
+  </div>
+  <div class="row2">
+    <div><label>ชื่อ-นามสกุล (ดึงอัตโนมัติ)</label>
+      <input type="text" id="h-name" readonly placeholder="ระบบดึงให้อัตโนมัติ"></div>
+    <div><label>ปีงบประมาณ <span class="req">*</span></label>
+      <select id="h-year">
+        <option>2570</option><option>2569</option><option>2568</option>
+        <option>2567</option><option>2566</option><option>2565</option>
+      </select></div>
+  </div>
+
+  <div class="sec">แปลงที่ดิน ส.ป.ก. ที่ร่วมโครงการ (กรณีมากกว่า 1 ให้กรอกแปลงที่มากที่สุด)</div>
+  <div class="row3">
+    <div><label>พื้นที่ทั้งหมด — ไร่ <span class="req">*</span></label>
+      <input type="number" id="h-arai" min="0"></div>
+    <div><label>งาน <span class="req">*</span></label>
+      <input type="number" id="h-angan" min="0" max="3"></div>
+    <div><label>ตารางวา <span class="req">*</span></label>
+      <input type="number" id="h-awa" min="0" max="99"></div>
+  </div>
+  <div class="row2">
+    <div><label>แปลงเลขที่ <span class="req">*</span></label>
+      <input type="text" id="h-plotNo"></div>
+    <div>
+      <label>กลุ่ม/ระวาง ส.ป.ก. <span class="req">*</span></label>
+      <input type="text" id="h-rawang" placeholder="เช่น 3692">
+      <div class="hint">⚠ กรอกตามเอกสาร ส.ป.ก. เก็บเป็น Text</div>
+    </div>
+  </div>
+  <div class="row3">
+    <div><label>หมู่ที่ (ที่ตั้งแปลง) <span class="req">*</span></label>
+      <input type="text" id="h-plotMoo"></div>
+    <div><label>ตำบล (ที่ตั้งแปลง) <span class="req">*</span></label>
+      <input type="text" id="h-plotSub"></div>
+    <div><label>อำเภอ (ที่ตั้งแปลง) <span class="req">*</span></label>
+      <input type="text" id="h-plotDis"></div>
+  </div>
+  <div class="f1">
+    <label>จังหวัด (ที่ตั้งแปลง) <span class="req">*</span></label>
+    <select id="h-plotProv"><option value="">-- เลือกจังหวัด --</option>
+      <optgroup label="ภาคเหนือ">
+        <option>กำแพงเพชร</option><option>เชียงราย</option><option>เชียงใหม่</option>
+        <option>ตาก</option><option>นครสวรรค์</option><option>น่าน</option>
+        <option>พะเยา</option><option>พิจิตร</option><option>พิษณุโลก</option>
+        <option>เพชรบูรณ์</option><option>แพร่</option><option>แม่ฮ่องสอน</option>
+        <option>ลำปาง</option><option>ลำพูน</option><option>สุโขทัย</option>
+        <option>อุตรดิตถ์</option><option>อุทัยธานี</option>
+      </optgroup>
+      <optgroup label="ภาคตะวันออกเฉียงเหนือ">
+        <option>กาฬสินธุ์</option><option>ขอนแก่น</option><option>ชัยภูมิ</option>
+        <option>นครพนม</option><option>นครราชสีมา</option><option>บึงกาฬ</option>
+        <option>บุรีรัมย์</option><option>มหาสารคาม</option><option>มุกดาหาร</option>
+        <option>ยโสธร</option><option>ร้อยเอ็ด</option><option>เลย</option>
+        <option>ศรีสะเกษ</option><option>สกลนคร</option><option>สุรินทร์</option>
+        <option>หนองคาย</option><option>หนองบัวลำภู</option><option>อำนาจเจริญ</option>
+        <option>อุดรธานี</option><option>อุบลราชธานี</option>
+      </optgroup>
+      <optgroup label="ภาคกลางและตะวันออก">
+        <option>กาญจนบุรี</option><option>จันทบุรี</option><option>ฉะเชิงเทรา</option>
+        <option>ชลบุรี</option><option>ชัยนาท</option><option>ตราด</option>
+        <option>นครนายก</option><option>นครปฐม</option><option>ปทุมธานี</option>
+        <option>ประจวบคีรีขันธ์</option><option>ปราจีนบุรี</option>
+        <option>พระนครศรีอยุธยา</option><option>เพชรบุรี</option><option>ระยอง</option>
+        <option>ราชบุรี</option><option>ลพบุรี</option><option>สระแก้ว</option>
+        <option>สระบุรี</option><option>สิงห์บุรี</option><option>สุพรรณบุรี</option>
+        <option>อ่างทอง</option>
+      </optgroup>
+      <optgroup label="ภาคใต้">
+        <option>กระบี่</option><option>ชุมพร</option><option>ตรัง</option>
+        <option>นครศรีธรรมราช</option><option>นราธิวาส</option><option>ปัตตานี</option>
+        <option>พังงา</option><option>พัทลุง</option><option>ภูเก็ต</option>
+        <option>ยะลา</option><option>ระนอง</option><option>สงขลา</option>
+        <option>สตูล</option><option>สุราษฎร์ธานี</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="row2">
+    <div><label>แหล่งน้ำสำหรับการเกษตร <span class="req">*</span></label>
+      <select id="h-water"><option value="">--</option>
+        <option>เพียงพอ</option><option>ไม่เพียงพอ</option>
+      </select></div>
+    <div><label>ไฟฟ้า <span class="req">*</span></label>
+      <select id="h-power"><option value="">--</option>
+        <option>เพียงพอ</option><option>ไม่เพียงพอ</option><option>ไม่มี</option>
+      </select></div>
+  </div>
+  <div class="row3">
+    <div><label>สัญญาณโทรศัพท์ <span class="req">*</span></label>
+      <select id="h-signal"><option value="">--</option>
+        <option>มี</option><option>มี แต่สัญญาณไม่เสถียร</option><option>ไม่มี</option>
+      </select></div>
+    <div><label>ถนน <span class="req">*</span></label>
+      <select id="h-road"><option value="">--</option>
+        <option>คอนกรีต</option><option>ลาดยาง</option>
+        <option>ลูกรัง</option><option>ไม่มีถนน</option>
+      </select></div>
+    <div><label>การคมนาคม <span class="req">*</span></label>
+      <select id="h-transport"><option value="">--</option>
+        <option>รถยนต์</option>
+        <option>รถจักรยานยนต์ หรือ จักรยาน</option>
+        <option>เดินเท้า</option>
+      </select></div>
+  </div>
+
+  <div class="sec">กิจกรรมเกษตร (ระบุชนิดพืช/สัตว์)</div>
+  <div class="row2">
+    <div><label>ทำนา</label><input type="text" id="h-act1" placeholder="เช่น ข้าว"></div>
+    <div><label>ปลูกผัก</label><input type="text" id="h-act2" placeholder="ชนิดผัก"></div>
+  </div>
+  <div class="row2">
+    <div><label>ผลไม้</label><input type="text" id="h-act3" placeholder="ชนิดผลไม้"></div>
+    <div><label>สมุนไพร</label><input type="text" id="h-act4" placeholder="ชนิดสมุนไพร"></div>
+  </div>
+  <div class="row2">
+    <div><label>พืชไร่</label><input type="text" id="h-act5" placeholder="เช่น มันสำปะหลัง อ้อย"></div>
+    <div><label>ปศุสัตว์</label><input type="text" id="h-act6" placeholder="เช่น โค สุกร ไก่"></div>
+  </div>
+  <div class="row2">
+    <div><label>แปรรูปผลิตภัณฑ์</label><input type="text" id="h-act7" placeholder="ชนิดผลิตภัณฑ์"></div>
+    <div><label>อื่นๆ</label><input type="text" id="h-act8" placeholder="ระบุ"></div>
+  </div>
+  <div class="row3">
+    <div><label>พื้นที่ทำการเกษตร (ไร่) <span class="req">*</span></label>
+      <input type="number" id="h-areaRai" min="0"></div>
+    <div><label>ปริมาณผลผลิต/ปี <span class="req">*</span></label>
+      <input type="text" id="h-yieldAmt" placeholder="เช่น 9,200"></div>
+    <div><label>หน่วยนับ <span class="req">*</span></label>
+      <input type="text" id="h-yieldUnit" placeholder="เช่น ก.ก., ตัน, ตัว"></div>
+  </div>
+
+  <div class="sec">รายได้ภาคการเกษตร</div>
+  <div class="row2">
+    <div><label>รายได้สุทธิ ก่อนเข้าร่วม (บาท) <span class="req">*</span></label>
+      <input type="number" id="h-inc1" min="0" oninput="hCalcDiff()"></div>
+    <div><label>รายได้สุทธิ หลังเข้าร่วม (บาท) <span class="req">*</span></label>
+      <input type="number" id="h-inc2" min="0" oninput="hCalcDiff()"></div>
+  </div>
+  <div id="h-inc-diff-box" class="inc-diff-box">
+    <span id="h-inc-diff-text"></span>
+  </div>
+
+  <div class="sec">ช่องทางการขาย <span class="req">*</span></div>
+  <div class="checks" style="margin-bottom:8px">
+    <label><input type="checkbox" id="h-ch1"> พ่อค้าคนกลาง/ล้ง</label>
+    <label><input type="checkbox" id="h-ch2"> ตลาดชุมชน</label>
+    <label><input type="checkbox" id="h-ch3"> ห้างสรรพสินค้า</label>
+    <label><input type="checkbox" id="h-ch4"> ออนไลน์</label>
+  </div>
+  <div class="f1"><label>ชื่อเพจ/ร้านค้าออนไลน์</label>
+    <input type="text" id="h-page" placeholder="ชื่อเพจ (ถ้ามี)"></div>
+
+  <div class="sec">การนำความรู้ไปใช้ <span class="req">*</span></div>
+  <div class="checks" style="margin-bottom:8px">
+    <label><input type="checkbox" id="h-k1"> บริหารจัดการแปลงเกษตรกรรมและการผลิต</label>
+    <label><input type="checkbox" id="h-k2"> พัฒนาผลิตภัณฑ์และเพิ่มมูลค่า</label>
+    <label><input type="checkbox" id="h-k3"> พัฒนาช่องทางการขายและการตลาด</label>
+    <label><input type="checkbox" id="h-k4"> วางแผนสู่การปฏิบัติในอนาคต</label>
+    <label><input type="checkbox" id="h-k5"> แนะนำเผยแพร่แก่เกษตรกรท่านอื่น</label>
+  </div>
+  <div class="f1">
+    <label>ไม่ได้นำไปใช้ เนื่องจาก (ระบุ)</label>
+    <input type="text" id="h-kNot" placeholder="ระบุเหตุผล (กรณีไม่ได้นำความรู้ไปใช้)">
+  </div>
+
+  <div class="sec">ความเปลี่ยนแปลงที่เกิดขึ้น <span class="req">*</span></div>
+  <div class="checks" style="margin-bottom:8px">
+    <label><input type="checkbox" id="h-c1"> รายได้เพิ่มขึ้น</label>
+    <label><input type="checkbox" id="h-c2"> รายจ่ายลดลง</label>
+    <label><input type="checkbox" id="h-c3"> ต้นทุนการผลิตลดลง</label>
+    <label><input type="checkbox" id="h-c4"> สามารถวางแผนการผลิต</label>
+    <label><input type="checkbox" id="h-c5"> สามารถวางแผนการตลาด</label>
+    <label><input type="checkbox" id="h-c6"> ผลผลิตเพิ่มขึ้น</label>
+    <label><input type="checkbox" id="h-c7"> ผลผลิตมีคุณภาพได้มาตรฐาน</label>
+  </div>
+  <div class="f1">
+    <label>อื่นๆ (ระบุ)</label>
+    <input type="text" id="h-cOther" placeholder="ระบุความเปลี่ยนแปลงอื่นๆ">
+  </div>
+
+  <div class="f1"><label>ปัญหา/อุปสรรค/ข้อเสนอแนะ</label>
+    <textarea id="h-problem" placeholder="ระบุ (ถ้ามี)"></textarea></div>
+
+  <div class="sec">ผลการประเมิน</div>
+  <div class="row2">
+    <div><label>ผลการประเมิน SF <span class="req">*</span></label>
+      <select id="h-result"><option value="">-- เลือกผล --</option>
+        <option value="ต้นแบบ">ต้นแบบในเขตปฏิรูปที่ดิน</option>
+        <option value="Existing">Existing Smart Farmer (ผ่านครบ 6 ตัวชี้วัด)</option>
+        <option value="Developing">Developing Smart Farmer (ผ่านไม่ครบ)</option>
+      </select></div>
+    <div><label>ประเภทเกษตรกร <span class="req">*</span></label>
+      <select id="h-sfType"><option value="">--</option>
+        <option>ปราดเปรื่อง (SF)</option><option>รุ่นใหม่ (YSF)</option>
+      </select></div>
+  </div>
+  <div class="row2">
+    <div><label>ผู้จัดเก็บข้อมูล (ชื่อ-สกุล) <span class="req">*</span></label>
+      <input type="text" id="h-staff"></div>
+    <div><label>เบอร์ติดต่อ <span class="req">*</span></label>
+      <input type="text" id="h-staffTel"></div>
+  </div>
+  <div class="f1"><label>วัน/เดือน/ปี ที่ลงข้อมูล <span class="req">*</span></label>
+    <input type="text" id="h-recordDate" placeholder="เช่น 12-มี.ค.-68"></div>
+
+  <button class="btn-primary hist" onclick="hSubmit()">💾 บันทึกประวัติการพัฒนา</button>
+  <div id="h-result-msg"></div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SEARCH ═══ -->
+<div id="page-search-page" class="page">
+  <div class="search-box">
+    <input type="text" id="sp-query" placeholder="ค้นหาด้วยเลขบัตร หรือ ชื่อ-นามสกุล..."
+      onkeydown="if(event.key==='Enter')spSearch()">
+    <button onclick="spSearch()">🔍 ค้นหา</button>
+  </div>
+  <div id="sp-result"></div>
+</div>
+
+<!-- ═══ PROFILE ═══ -->
+<div id="page-profile" class="page">
+  <button class="back-btn" onclick="goBack()">← กลับ</button>
+  <div id="profile-loading" class="loading" style="display:none">
+    <div class="spin"></div><br>กำลังโหลดข้อมูล...
+  </div>
+  <div id="profile-content"></div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ── Helpers ──
+function rv(id){ return document.getElementById(id).value.trim(); }
+function hv(id){ return document.getElementById(id).value.trim(); }
+function chk(id){ return document.getElementById(id).checked?'นำไปใช้':''; }
+function chkC(id){ return document.getElementById(id).checked?'มี':''; }
+function anyChk(...ids){ return ids.some(id=>document.getElementById(id).checked); }
+function badge(s){
+  return s==='ต้นแบบ'?`<span class="badge b-tb">${s}</span>`
+    :s==='Existing'?`<span class="badge b-ex">${s}</span>`
+    :`<span class="badge b-dv">${s||'—'}</span>`;
+}
+
+// ── Navigation ──
+let prevPage = 'dashboard';
+function showPage(p, el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  if(el) el.classList.add('active');
+  if(p==='dashboard') loadDashboard();
+}
+
+// ── Dashboard ──
+let dashLoaded = false;
+function loadDashboard(){
+  if(dashLoaded) return;
+  document.getElementById('dash-loading').innerHTML=
+    '<div class="spin"></div><br>กำลังโหลดข้อมูล...';
+  google.script.run
+    .withSuccessHandler(function(d){
+      if(!d){
+        document.getElementById('dash-loading').innerHTML=
+          '<div style="color:#c0392b">ได้รับข้อมูลว่าง — กรุณา Reload</div>';
+        return;
+      }
+      renderDashboard(d);
+    })
+    .withFailureHandler(function(e){
+      document.getElementById('dash-loading').innerHTML=
+        '<div style="color:#c0392b">โหลดไม่สำเร็จ: '+e.message+'</div>';
+    })
+    .getDashboardData();
+}
+
+function renderDashboard(d){
+  if(!d){
+    document.getElementById('dash-loading').innerHTML=
+      '<div style="color:#c0392b">ได้รับข้อมูลว่าง (null)</div>';
+    return;
+  }
+  if(d.error){
+    document.getElementById('dash-loading').innerHTML=
+      '<div style="color:#c0392b">Error: '+d.error+'</div>';
+    return;
+  }
+  dashLoaded=true;
+  document.getElementById('dash-loading').style.display='none';
+  document.getElementById('dash-loading').style.display='none';
+  document.getElementById('dash-content').style.display='block';
+  const pct=n=>d.total?' ('+Math.round(n/d.total*100)+'%)':'';
+  document.getElementById('d-total').textContent=d.total.toLocaleString();
+  document.getElementById('d-tb').textContent=d.tb.toLocaleString();
+  document.getElementById('d-ex').textContent=d.ex.toLocaleString();
+  document.getElementById('d-dv').textContent=d.dv.toLocaleString();
+  document.getElementById('d-tb-pct').textContent=pct(d.tb);
+  document.getElementById('d-ex-pct').textContent=pct(d.ex);
+  document.getElementById('d-dv-pct').textContent=pct(d.dv);
+
+  new Chart(document.getElementById('chart-status'),{
+    type:'doughnut',
+    data:{labels:['ต้นแบบ','Existing','Developing'],
+      datasets:[{data:[d.tb,d.ex,d.dv],
+        backgroundColor:['#0F6E56','#0C447C','#854F0B'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'Sarabun'},boxWidth:12}}}}
+  });
+
+  const provLabels=Object.keys(d.byProv);
+  new Chart(document.getElementById('chart-prov'),{
+    type:'bar',
+    data:{labels:provLabels,datasets:[
+      {label:'ต้นแบบ',data:provLabels.map(p=>d.byProv[p].tb),backgroundColor:'#0F6E56'},
+      {label:'Existing',data:provLabels.map(p=>d.byProv[p].ex),backgroundColor:'#0C447C'},
+      {label:'Developing',data:provLabels.map(p=>d.byProv[p].dv),backgroundColor:'#854F0B'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'Sarabun'},boxWidth:12}}},
+      scales:{x:{stacked:true,ticks:{font:{family:'Sarabun'}}},
+              y:{stacked:true,ticks:{font:{family:'Sarabun'}}}}}
+  });
+
+  const maxInc=Math.max(d.avgInc1,d.avgInc2,1);
+  const diff=d.avgInc2-d.avgInc1;
+  document.getElementById('inc-rows').innerHTML=`
+    <div class="inc-row">
+      <div class="inc-lbl">ภาพรวม</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <span style="font-size:11px;color:#888;min-width:40px">ก่อน</span>
+          <div class="inc-bar-wrap"><div class="inc-bar bar-b" style="width:${d.avgInc1/maxInc*100}%"></div></div>
+          <span class="inc-val">${d.avgInc1.toLocaleString()}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:#888;min-width:40px">หลัง</span>
+          <div class="inc-bar-wrap"><div class="inc-bar bar-a" style="width:${d.avgInc2/maxInc*100}%"></div></div>
+          <span class="inc-val">${d.avgInc2.toLocaleString()}</span>
+        </div>
+      </div>
+      <div class="inc-diff ${diff>=0?'diff-up':'diff-dn'}">
+        ${diff>=0?'↑':'↓'} ${Math.abs(diff).toLocaleString()}
+      </div>
+    </div>`;
+
+  const years=Object.keys(d.byYear).sort().reverse();
+  document.getElementById('year-tbody').innerHTML=years.map(y=>`<tr>
+    <td><strong>${y}</strong></td><td>${d.byYear[y].count}</td>
+    <td><span class="badge b-tb">${d.byYear[y].tb}</span></td>
+    <td><span class="badge b-ex">${d.byYear[y].ex}</span></td>
+    <td><span class="badge b-dv">${d.byYear[y].dv}</span></td>
+  </tr>`).join('');
+
+  document.getElementById('recent-tbody').innerHTML=d.recent.map(r=>`
+  <tr style="cursor:pointer" onclick="openProfile('${String(r.id).replace(/\.0+$/, '')}')">
+    <td>${r.name}</td><td>${r.prov}</td><td>${r.year}</td>
+    <td>${badge(r.result)}</td><td>${r.date||'—'}</td>
+  </tr>`).join('');
+}
+
+// ── Register ──
+function rChkDup(){
+  const id=rv('r-id'),el=document.getElementById('r-dup');
+  if(id.length!==13){el.innerHTML='';return;}
+  google.script.run.withSuccessHandler(r=>{
+    el.innerHTML=r.duplicate
+      ?'<div class="dup-err">⚠ มีในระบบแล้ว: '+r.name+'</div>'
+      :'<div class="dup-ok">✓ ไม่พบในระบบ สามารถลงทะเบียนได้</div>';
+  }).checkDuplicate(id);
+}
+function rToggleOwner(){
+  document.getElementById('r-owner-block').style.display=
+    rv('r-own')==='ไม่ใช่'?'block':'none';
+}
+function rSubmit(){
+  if(rv('r-id').length!==13){rMsg('err','กรุณากรอกเลขบัตร 13 หลัก');return;}
+  if(!rv('r-bday')||!rv('r-bmon')||!rv('r-byr')){rMsg('err','กรุณากรอกวันเกิดให้ครบ');return;}
+  if(!rv('r-title')||!rv('r-fname')||!rv('r-lname'))
+    {rMsg('err','กรุณากรอก คำนำหน้า ชื่อ และนามสกุล');return;}
+  if(!rv('r-edu')){rMsg('err','กรุณาเลือกระดับการศึกษา');return;}
+  if(!rv('r-hno')||!rv('r-moo')||!rv('r-sub')||!rv('r-dis')||!rv('r-prov'))
+    {rMsg('err','กรุณากรอกที่อยู่ตามบัตรให้ครบ');return;}
+  if(!rv('r-mem')||!rv('r-lab'))
+    {rMsg('err','กรุณากรอกจำนวนสมาชิกและแรงงาน');return;}
+  if(!rv('r-own')){rMsg('err','กรุณาระบุว่าเป็นเจ้าของแปลงหรือไม่');return;}
+  if(rv('r-own')==='ไม่ใช่'){
+    if(!rv('r-ownerRel')||!rv('r-ownerName')||!rv('r-ownerID'))
+      {rMsg('err','กรุณากรอกข้อมูลเจ้าของแปลงให้ครบ');return;}
+  }
+  const bday=rv('r-bday')&&rv('r-bmon')&&rv('r-byr')
+    ?rv('r-bday')+'-'+rv('r-bmon')+'-'+rv('r-byr'):'';
+  rMsg('warn','⏳ กำลังบันทึก...');
+  google.script.run
+    .withSuccessHandler(r=>rMsg(r.ok?'ok':'err',r.msg))
+    .saveMaster({
+      id:rv('r-id'),title:rv('r-title'),fname:rv('r-fname'),lname:rv('r-lname'),bday,
+      hno:rv('r-hno'),moo:rv('r-moo'),sub:rv('r-sub'),dis:rv('r-dis'),prov:rv('r-prov'),
+      mem:rv('r-mem'),lab:rv('r-lab'),own:rv('r-own'),
+      ownerRel:rv('r-own')==='ไม่ใช่'?rv('r-ownerRel'):'',
+      ownerName:rv('r-own')==='ไม่ใช่'?rv('r-ownerName'):'',
+      ownerID:rv('r-own')==='ไม่ใช่'?rv('r-ownerID'):'',
+      edu:rv('r-edu'),degree:rv('r-degree'),major:rv('r-major'),
+      regAgri:rv('r-regAgri'),regRubber:rv('r-regRubber'),
+      coop:rv('r-coop'),bigfarm:rv('r-bigfarm'),smce:rv('r-smce')
+    });
+}
+function rMsg(t,m){
+  document.getElementById('r-result').innerHTML='<div class="msg msg-'+t+'">'+m+'</div>';}
+
+// ── History ──
+function hLookup(){
+  const id=hv('h-id'),el=document.getElementById('h-lookup'),
+        nm=document.getElementById('h-name');
+  if(id.length!==13){el.innerHTML='';nm.value='';return;}
+  google.script.run.withSuccessHandler(r=>{
+    if(r.found){
+      nm.value=r.title+r.fname+' '+r.lname;
+      el.innerHTML='<div class="found-box">✓ '+r.title+r.fname+' '+r.lname
+        +' | '+r.province+' | '+r.status+'</div>';
+    }else{
+      nm.value='';
+      el.innerHTML='<div class="msg msg-err">⚠ ไม่พบเลขบัตร — กรุณาลงทะเบียนก่อน</div>';
+    }
+  }).lookupName(id);
+}
+
+function hCalcDiff(){
+  const i1=Number(hv('h-inc1'))||0,i2=Number(hv('h-inc2'))||0;
+  const box=document.getElementById('h-inc-diff-box');
+  const txt=document.getElementById('h-inc-diff-text');
+  if(i1&&i2){
+    const d=i2-i1,pct=(d/i1*100).toFixed(1);
+    const color=d>=0?'#0F6E56':'#c0392b';
+    txt.innerHTML=`<span style="color:${color};font-weight:600">`
+      +(d>=0?'↑ รายได้เพิ่มขึ้น ':'↓ รายได้ลดลง ')
+      +Math.abs(d).toLocaleString()+' บาท ('+Math.abs(pct)+'%)</span>';
+    window._incSummary=d>0?'เพิ่มขึ้น':d<0?'ลดลง':'เท่าเดิม';
+    box.style.display='block';
+  }else{
+    box.style.display='none';
+    window._incSummary='';
+  }
+}
+
+function hSubmit(){
+  if(hv('h-id').length!==13){hMsg('err','กรุณากรอกเลขบัตร 13 หลัก');return;}
+  if(!hv('h-year')){hMsg('err','กรุณาเลือกปีงบประมาณ');return;}
+  if(!hv('h-arai')){hMsg('err','กรุณากรอกพื้นที่ทั้งหมด (ไร่)');return;}
+  if(hv('h-angan')===''){hMsg('err','กรุณากรอกจำนวนงาน');return;}
+  if(hv('h-awa')===''){hMsg('err','กรุณากรอกจำนวนตารางวา');return;}
+  if(!hv('h-plotNo')){hMsg('err','กรุณากรอกแปลงเลขที่');return;}
+  if(!hv('h-rawang')){hMsg('err','กรุณากรอกกลุ่ม/ระวาง ส.ป.ก.');return;}
+  if(!hv('h-plotMoo')||!hv('h-plotSub')||!hv('h-plotDis')||!hv('h-plotProv'))
+    {hMsg('err','กรุณากรอกที่ตั้งแปลงให้ครบ');return;}
+  if(!hv('h-water')||!hv('h-power')||!hv('h-signal')||!hv('h-road')||!hv('h-transport'))
+    {hMsg('err','กรุณาเลือกข้อมูลสาธารณูปโภคให้ครบ');return;}
+  if(!hv('h-areaRai')||!hv('h-yieldAmt')||!hv('h-yieldUnit'))
+    {hMsg('err','กรุณากรอกพื้นที่ ผลผลิต และหน่วยนับ');return;}
+  if(!hv('h-inc1')||!hv('h-inc2'))
+    {hMsg('err','กรุณากรอกรายได้ก่อนและหลัง');return;}
+  if(!anyChk('h-ch1','h-ch2','h-ch3','h-ch4'))
+    {hMsg('err','กรุณาเลือกช่องทางการขายอย่างน้อย 1 ช่องทาง');return;}
+  if(!anyChk('h-k1','h-k2','h-k3','h-k4','h-k5')&&!hv('h-kNot'))
+    {hMsg('err','กรุณาเลือกการนำความรู้ไปใช้ หรือระบุเหตุผลที่ไม่ได้นำไปใช้');return;}
+  if(!anyChk('h-c1','h-c2','h-c3','h-c4','h-c5','h-c6','h-c7')&&!hv('h-cOther'))
+    {hMsg('err','กรุณาเลือกความเปลี่ยนแปลงอย่างน้อย 1 ข้อ');return;}
+  if(!hv('h-result')){hMsg('err','กรุณาเลือกผลการประเมิน SF');return;}
+  if(!hv('h-sfType')){hMsg('err','กรุณาเลือกประเภทเกษตรกร');return;}
+  if(!hv('h-staff')){hMsg('err','กรุณากรอกชื่อผู้จัดเก็บ');return;}
+  if(!hv('h-staffTel')){hMsg('err','กรุณากรอกเบอร์ติดต่อ');return;}
+  if(!hv('h-recordDate')){hMsg('err','กรุณากรอกวันที่ลงข้อมูล');return;}
+
+  const form={
+    id:hv('h-id'),year:hv('h-year'),
+    arai:hv('h-arai'),angan:hv('h-angan'),awa:hv('h-awa'),
+    jRai:hv('h-arai'),jNgan:hv('h-angan'),jWa:hv('h-awa'),
+    plotNo:hv('h-plotNo'),rawang:hv('h-rawang'),
+    plotMoo:hv('h-plotMoo'),plotSub:hv('h-plotSub'),
+    plotDis:hv('h-plotDis'),plotProv:hv('h-plotProv'),
+    water:hv('h-water'),power:hv('h-power'),
+    signal:hv('h-signal'),road:hv('h-road'),transport:hv('h-transport'),
+    act1:hv('h-act1'),act2:hv('h-act2'),act3:hv('h-act3'),act4:hv('h-act4'),
+    act5:hv('h-act5'),act6:hv('h-act6'),act7:hv('h-act7'),act8:hv('h-act8'),
+    areaRai:hv('h-areaRai'),yieldAmt:hv('h-yieldAmt'),yieldUnit:hv('h-yieldUnit'),
+    ch1:document.getElementById('h-ch1').checked?'มี':'',
+    ch2:document.getElementById('h-ch2').checked?'มี':'',
+    ch3:document.getElementById('h-ch3').checked?'มี':'',
+    ch4:document.getElementById('h-ch4').checked?'มี':'',
+    page:hv('h-page'),
+    inc1:hv('h-inc1'),inc2:hv('h-inc2'),
+    incSummary:window._incSummary||'',
+    k1:chk('h-k1'),k2:chk('h-k2'),k3:chk('h-k3'),k4:chk('h-k4'),k5:chk('h-k5'),
+    kNot:hv('h-kNot'),
+    c1:chkC('h-c1'),c2:chkC('h-c2'),c3:chkC('h-c3'),
+    c4:chkC('h-c4'),c5:chkC('h-c5'),c6:chkC('h-c6'),
+    c7:chkC('h-c7'),cOther:hv('h-cOther'),
+    problem:document.getElementById('h-problem').value.trim(),
+    result:hv('h-result'),sfType:hv('h-sfType'),
+    staff:hv('h-staff'),staffTel:hv('h-staffTel'),recordDate:hv('h-recordDate')
+  };
+
+  hMsg('warn','⏳ กำลังบันทึก...');
+  google.script.run
+    .withSuccessHandler(r=>{
+      hMsg(r.ok?'ok':'err',r.msg);
+      if(r.ok){ google.script.run.savePlot(form); dashLoaded=false; }
+    })
+    .saveHistory(form);
+}
+function hMsg(t,m){
+  document.getElementById('h-result-msg').innerHTML='<div class="msg msg-'+t+'">'+m+'</div>';}
+
+// ── Search ──
+function spSearch(){
+  const q=document.getElementById('sp-query').value.trim();
+  if(!q) return;
+  document.getElementById('sp-result').innerHTML=
+    '<div class="loading"><div class="spin"></div><br>กำลังค้นหา...</div>';
+  google.script.run.withSuccessHandler(renderSearchResults).searchFarmer(q,'','');
+}
+
+function renderSearchResults(results){
+  const el=document.getElementById('sp-result');
+  if(!results.length){
+    el.innerHTML='<div style="text-align:center;padding:30px;color:#888">ไม่พบข้อมูล</div>';
+    return;
+  }
+  el.innerHTML='<div style="font-size:12px;color:#666;margin-bottom:12px">พบ '+results.length+' ราย</div>'
+    +results.map(r=>`
+    <div class="farmer-card" onclick="openProfile('${String(r.id).replace(/\.0+$/, '')}')">
+      <div>
+        <div class="farmer-card-name">${r.title||''}${r.fname} ${r.lname} ${badge(r.status)}</div>
+        <div class="farmer-card-meta">🪪 ${r.id} | 📍 ${r.province||'—'} | 📅 เข้าร่วม ${r.years} ปี</div>
+      </div>
+      <button class="view-btn">ดูข้อมูล →</button>
+    </div>`).join('');
+}
+
+// ── Profile ──
+function openProfile(id){
+  console.log('openProfile called with id:', id);
+  
+  const profilePage = document.getElementById('page-profile');
+  const profileLoading = document.getElementById('profile-loading');
+  const profileContent = document.getElementById('profile-content');
+  
+  console.log('page-profile element:', profilePage);
+  console.log('profile-loading element:', profileLoading);
+  
+  if(!profilePage){
+    alert('ERROR: ไม่พบ page-profile');
+    return;
+  }
+
+  prevPage = document.querySelector('.page.active').id.replace('page-','');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  profilePage.classList.add('active');
+  profileContent.innerHTML='';
+  profileLoading.style.display='block';
+
+  console.log('Calling getFarmerProfile...');
+
+  google.script.run
+    .withSuccessHandler(function(r){
+      console.log('getFarmerProfile returned:', r);
+      profileLoading.style.display='none';
+      renderProfile(r);
+    })
+    .withFailureHandler(function(e){
+      console.log('getFarmerProfile FAILED:', e);
+      profileLoading.style.display='none';
+      profileContent.innerHTML='<div class="msg msg-err">โหลดไม่สำเร็จ: '+e.message+'</div>';
+    })
+    .getFarmerProfile(id);
+}
+
+function goBack(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+prevPage).classList.add('active');
+  const names=['dashboard','register','history','search-page'];
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
+    t.classList.toggle('active',names[i]===prevPage);
+  });
+}
+
+function renderProfile(d){
+  console.log('renderProfile received:', JSON.stringify(d));
+  document.getElementById('profile-loading').style.display='none';
+  if(!d || !d.found){
+    document.getElementById('profile-content').innerHTML=
+      '<div class="msg msg-err">'+(d&&d.error?'Error: '+d.error:'ไม่พบข้อมูลเกษตรกร')+'</div>';
+    return;
+  }
+  const fmt=n=>Number(n||0).toLocaleString();
+  let html=`
+  <div class="profile-header">
+    <div class="profile-avatar">${(d.fname||'?')[0]}</div>
+    <div>
+      <div class="profile-name">${d.title}${d.fname} ${d.lname} ${badge(d.status)}</div>
+      <div class="profile-meta">🪪 ${d.id} | 📍 ${d.province} | เข้าร่วม ${d.history.length} ปี</div>
+    </div>
+  </div>
+  <div class="profile-grid">
+    <div class="info-card">
+      <div class="info-title">👤 ข้อมูลส่วนตัว</div>
+      <div class="info-row"><span class="info-lbl">วันเกิด</span><span class="info-val">${d.bday||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">การศึกษา</span><span class="info-val">${d.edu||'—'}</span></div>
+      ${d.degree?`<div class="info-row"><span class="info-lbl">วุฒิ/สาขา</span>
+        <span class="info-val">${d.degree}${d.major?' / '+d.major:''}</span></div>`:''}
+      <div class="info-row"><span class="info-lbl">ที่อยู่</span>
+        <span class="info-val" style="text-align:right;max-width:180px">${d.address||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">ครัวเรือน</span>
+        <span class="info-val">${d.mem||'—'} ราย (แรงงาน ${d.lab||'—'} ราย)</span></div>
+      <div class="info-row"><span class="info-lbl">เจ้าของแปลง</span>
+        <span class="info-val">${d.own==='ใช่'?'ใช่':(d.ownerRel||'ไม่ใช่')+(d.ownerName?' ('+d.ownerName+')':'')}</span></div>
+    </div>
+    <div class="info-card">
+      <div class="info-title">📋 การขึ้นทะเบียน</div>
+      <div class="info-row"><span class="info-lbl">เกษตรอำเภอ</span><span class="info-val">${d.regAgri||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">สหกรณ์</span><span class="info-val">${d.coop||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">แปลงใหญ่</span><span class="info-val">${d.bigfarm||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">วิสาหกิจ</span><span class="info-val">${d.smce||'—'}</span></div>
+    </div>
+  </div>`;
+
+  if(d.plots.length){
+    html+=`<div class="info-card" style="margin-bottom:16px">
+      <div class="info-title">🗺 ข้อมูลแปลงที่ดิน ส.ป.ก.</div>`;
+    d.plots.forEach((p,i)=>{
+      html+=`${i>0?'<hr style="border:none;border-top:1px solid #f0f0f0;margin:10px 0">':''}
+      <div class="info-row"><span class="info-lbl">พื้นที่ทั้งหมด</span><span class="info-val">${p.aTotal||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">พื้นที่ร่วม ส.ป.ก.</span><span class="info-val">${p.aJoint||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">แปลงเลขที่ / ระวาง</span><span class="info-val">${p.plotNo||'—'} / ${p.rawang||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">ที่ตั้งแปลง</span><span class="info-val">${p.location||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">น้ำ / ไฟฟ้า</span><span class="info-val">${p.water||'—'} / ${p.power||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">สัญญาณ / ถนน</span><span class="info-val">${p.signal||'—'} / ${p.road||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">การคมนาคม</span><span class="info-val">${p.transport||'—'}</span></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div style="font-size:14px;font-weight:600;color:#444;margin-bottom:12px">
+    📅 ประวัติการพัฒนา (${d.history.length} ปี)</div>`;
+
+  d.history.forEach(h=>{
+    const diff=Number(h.incDiff)||0,pct=Number(h.incPct)||0;
+    const color=diff>=0?'#0F6E56':'#c0392b';
+    const arrow=diff>0?'↑':diff<0?'↓':'→';
+    html+=`
+    <div class="hist-card">
+      <div class="hist-year"><span>ปีงบประมาณ ${h.year}</span>${badge(h.result)}</div>
+      ${h.acts?`<div style="font-size:13px;margin-bottom:6px"><span style="color:#888">กิจกรรม:</span> ${h.acts}${h.areaRai?' ('+h.areaRai+' ไร่)':''}</div>`:''}
+      ${h.yield?`<div style="font-size:13px;margin-bottom:6px"><span style="color:#888">ผลผลิต:</span> ${h.yield}</div>`:''}
+      ${h.ch?`<div style="font-size:13px;margin-bottom:8px"><span style="color:#888">ช่องทางขาย:</span> ${h.ch}</div>`:''}
+      <div class="inc-compare">
+        <div class="inc-box"><div class="inc-box-val" style="color:#0C447C">${fmt(h.inc1)}</div><div class="inc-box-lbl">ก่อน (บาท)</div></div>
+        <div class="inc-arrow" style="color:${color}">${arrow}</div>
+        <div class="inc-box"><div class="inc-box-val" style="color:#0F6E56">${fmt(h.inc2)}</div><div class="inc-box-lbl">หลัง (บาท)</div></div>
+        <div class="inc-box"><div class="inc-box-val" style="color:${color}">${diff>=0?'+':''}${fmt(diff)}</div><div class="inc-box-lbl">${arrow} ${Math.abs(pct)}%</div></div>
+      </div>
+      ${h.knowledge?`<div style="margin-top:8px"><div style="font-size:11px;color:#888;margin-bottom:4px">ความรู้ไปใช้</div>
+        <div class="tag-wrap">${h.knowledge.split(', ').map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}
+      ${h.changes?`<div style="margin-top:8px"><div style="font-size:11px;color:#888;margin-bottom:4px">ความเปลี่ยนแปลง</div>
+        <div class="tag-wrap">${h.changes.split(', ').map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:''}
+      ${h.problem?`<div style="margin-top:8px;font-size:12px;color:#854F0B">⚠ ${h.problem}</div>`:''}
+      <div style="margin-top:10px;font-size:11px;color:#aaa;text-align:right">
+        ผู้จัดเก็บ: ${h.staff||'—'} | ${h.recordDate||'—'}</div>
+    </div>`;
+  });
+
+  if(!d.history.length){
+    html+='<div style="text-align:center;padding:20px;color:#aaa">ยังไม่มีประวัติการพัฒนา</div>';
+  }
+
+  document.getElementById('profile-content').innerHTML=html;
+}
+
+window.onload = function(){
+  loadDashboard();
+};
+</script>
+</body>
+</html>
